@@ -1,0 +1,6 @@
+qdrant:
+  host: "localhost"
+  port: 6333
+  collection_name: "luat_vectors"
+  vector_size: 1536
+  distance: "Cosine"
