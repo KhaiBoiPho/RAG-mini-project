@@ -1,6 +1,26 @@
-src/backend/.env
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Env files
 .env
+*.env
 src/backend/.env
-.env
-src/backend/.env
-src/backend/.env
+
+# Virtualenv
+.venv/
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
