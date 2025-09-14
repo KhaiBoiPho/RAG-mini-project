@@ -26,15 +26,21 @@ class Settings(BaseSettings):
     # Qdrant Configuration
     QDRANT_URL: Optional[str] = Field(env="QDRANT_URL")
     QDRANT_API_KEY: Optional[str] = Field(env="QDRANT_API_KEY")
-    QDRANT_COLLECTION: str = Field(default="legal_rag", env="COLLECTION_NAME")
-    QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
+    QDRANT_COLLECTION_NAME: str = Field(default="legal_rag", env="COLLECTION_NAME")
+    # QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
     
     # HuggingFace Configuration
     HUGGINGFACE_API_KEY: Optional[str] = Field(env="HUGGINGFACE_API_KEY")
-    EMBEDDINGS_MODEL_NAME: str = Field(
+    EMBEDDING_DIMENSION: int = Field(env="EMBEDDING_DIMENSION")
+    MAX_INPUT_TOKENS: int = Field(env="MAX_INPUT_TOKENS")
+    EMBEDDINGS_MODEL: str = Field(
         default="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
         env="EMBEDDINGS_MODEL_NAME"
     )
+    
+    # Text processing settings
+    CHUNK_SIZE: int = 1000
+    CHUNK_OVERLAP: int = 200
     
     # OpenAI Configuration
     OPENAI_API_KEY: Optional[str] = Field(env="OPENAI_API_KEY")
@@ -42,8 +48,10 @@ class Settings(BaseSettings):
     MAX_TOKENS: int = Field(default=2048, env="MAX_TOKENS")
     
     # Search Configuration
-    SEMANTIC_SEARCH_TOP_K: int = Field(default=5, env="SEMANTIC_SEARCH_TOP_K")
+    SEMANTIC_SEARCH_TOP_K: int = Field(default=10, env="SEMANTIC_SEARCH_TOP_K")
     SCORE_THRESHOLD: float = Field(default=0.5, env="SCORE_THRESHOLD")
+    BM25_WEIGHT: float = Field(default=0.3, env="BM25_WEIGHT")
+    VECTOR_WEIGHT: float = Field(default=0.7, env="VECTOR_WEIGHT")
     HIGH_CONFIDENCE_THRESHOLD: float = Field(default=0.85, env="HIGH_CONFIDENCE_THRESHOLD")
     
     # Performance Configuration
