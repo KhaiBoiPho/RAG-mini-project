@@ -3,13 +3,21 @@
 Configuration management for RAG Backend API
 """
 
+from pathlib import Path
 from typing import Optional
-from pydantic import BaseSettings, Field
+from pydantic_settings import BaseSettings
+from pydantic import Field
 from dotenv import load_dotenv
+import yaml
 
 # Load environment variables
 load_dotenv()
 
+# Load config with qdrant
+CONFIG_PATH = Path(__file__).parent / "config.yaml"
+
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    config = yaml.safe_load(f)
 
 class Settings(BaseSettings):
     """Application settings with enviroment variable support"""
@@ -18,6 +26,8 @@ class Settings(BaseSettings):
     QDRANT_URL: Optional[str] = Field(env="QDRANT_URL")
     QDRANT_API_KEY: Optional[str] = Field(env="QDRANT_API_KEY")
     QDRANT_COLLECTION_NAME: str = Field(default="legal_rag", env="COLLECTION_NAME")
+    QDRANT_HOST: str = Field(default=config["qdrant"]["host"], env="QDRANT_HOST")
+    QDRANT_PORT: int = Field(default=config["qdrant"]["port"], env="QDRANT_PORT")
     # QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
     
     # HuggingFace Configuration
@@ -54,10 +64,8 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-
 # Global settings instance
 settings = Settings()
-
 
 def get_settings() -> Settings:
     """Get application settings"""

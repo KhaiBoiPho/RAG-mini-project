@@ -7,7 +7,7 @@ import re
 import html
 import emoji
 from typing import List
-from app.config import settings
+from ..config import settings
 
 class TextSplitter:
     def __init__(self, chunk_size: int = None, chunk_overlap: int = None):

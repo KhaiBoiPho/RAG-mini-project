@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Initialize Qdrant database and collection for RAG
+Reset Qdrant collection (drop & recreate)
 """
 
 import logging
@@ -11,9 +11,8 @@ from config import settings
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def init_qdrant():
-    """Initialize Qdrant collection"""
-    
+def reset_qdrant():
+    """Drop and recreate Qdrant collection"""
     client = QdrantClient(
         host=settings.QDRANT_HOST,
         port=settings.QDRANT_PORT,
@@ -24,7 +23,6 @@ def init_qdrant():
     vector_size = settings.qdrant_config.get("vector_size", settings.EMBEDDING_DIMENSION)
     distance = settings.qdrant_config.get("distance", "Cosine")
 
-    # Map string distance to Qdrant enum
     distance_map = {
         "Cosine": Distance.COSINE,
         "Dot": Distance.DOT,
@@ -32,15 +30,17 @@ def init_qdrant():
     }
     distance_metric = distance_map.get(distance, Distance.COSINE)
 
+    # Delete if exists
     if client.collection_exists(collection_name):
-        logger.info(f"Collection '{collection_name}' already exists in Qdrant.")
-    else:
-        logger.info(f"Creating collection '{collection_name}' in Qdrant...")
-        client.create_collection(
-            collection_name=collection_name,
-            vectors_config=VectorParams(size=vector_size, distance=distance_metric),
-        )
-        logger.info(f"Collection '{collection_name}' created successfully.")
+        logger.info(f"Dropping existing collection: {collection_name}")
+        client.delete_collection(collection_name=collection_name)
+
+    logger.info(f"Recreating collection '{collection_name}'...")
+    client.create_collection(
+        collection_name=collection_name,
+        vectors_config=VectorParams(size=vector_size, distance=distance_metric),
+    )
+    logger.info(f"Collection '{collection_name}' reset successfully.")
 
 if __name__ == "__main__":
-    init_qdrant()
+    reset_qdrant()

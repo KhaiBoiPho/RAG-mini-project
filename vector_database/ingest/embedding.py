@@ -6,12 +6,10 @@ All dataset will be convert to embeddings in local with HuggingFace models
 
 from typing import List, Union
 import numpy as np
-from ..config import settings
+from vector_database.config import settings
 import logging
 from sentence_transformers import SentenceTransformer
 import torch
-from concurrent.futures import ThreadPoolExecutor
-import threading
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +19,6 @@ class EmbeddingModel:
         self.dimension = settings.EMBEDDING_DIMENSION
         self.max_input_tokens = settings.MAX_INPUT_TOKENS
         self.batch_size = settings.EMBEDDING_BATCH_SIZE
-        
-        # Thread pool for CPU-bound operations
-        self.executor = ThreadPoolExecutor(
-            max_workers=settings.EMBEDDING_MAX_WORKERS,
-            thread_name_prefix="embedding_worker"
-        )
-        
-        # Thread-local storage for model instances
-        self._local = threading.local()
         
         # Initialize main for model instances
         self._init_model()
@@ -188,3 +177,6 @@ class EmbeddingModel:
             "dimension": self.dimension,
             "max_input_tokens": self.max_input_tokens
         }
+
+# Global service instance
+embeddings_model = EmbeddingModel()
