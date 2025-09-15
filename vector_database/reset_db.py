@@ -19,9 +19,9 @@ def reset_qdrant():
         api_key=settings.QDRANT_API_KEY,
     )
 
-    collection_name = settings.qdrant_config.get("collection_name", settings.QDRANT_COLLECTION_NAME)
-    vector_size = settings.qdrant_config.get("vector_size", settings.EMBEDDING_DIMENSION)
-    distance = settings.qdrant_config.get("distance", "Cosine")
+    collection_name = settings.QDRANT_COLLECTION_NAME
+    vector_size = settings.EMBEDDING_DIMENSION
+    distance = settings.QDRANT_DISTANCE
 
     distance_map = {
         "Cosine": Distance.COSINE,

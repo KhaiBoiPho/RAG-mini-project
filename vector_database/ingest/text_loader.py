@@ -31,7 +31,7 @@ class DocumentLoader:
         suffix = self.filepath.suffix.lower()
 
         if suffix == ".txt":
-            loader = TextLoader(str(self.filepath), encoding="utf-8")
+            loader = TextLoader(str(self.filepath), encoding="utf-16le")
 
         elif suffix == ".pdf":
             loader = PyPDFLoader(str(self.filepath))

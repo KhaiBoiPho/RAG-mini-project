@@ -16,7 +16,10 @@ class Uploader:
         self.collection = collection
         
         try:
-            self.client = QdrantClient(host=self.host, port=self.port)
+            self.client = QdrantClient(
+                url=settings.QDRANT_URL,
+                api_key=settings.QDRANT_API_KEY
+            )
             logger.info(f"Connected to Qdrant at {self.host}:{self.port}, collection={self.collection}")
         except Exception as e:
             logger.error(f"Failed to connect to Qdrant: {e}")

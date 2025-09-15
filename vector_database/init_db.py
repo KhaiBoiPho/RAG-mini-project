@@ -14,15 +14,25 @@ logger = logging.getLogger(__name__)
 def init_qdrant():
     """Initialize Qdrant collection"""
     
+    # client = QdrantClient(
+    #     host=settings.QDRANT_HOST,
+    #     port=settings.QDRANT_PORT,
+    #     api_key=settings.QDRANT_API_KEY,
+    # )
+    
     client = QdrantClient(
-        host=settings.QDRANT_HOST,
-        port=settings.QDRANT_PORT,
+        url=settings.QDRANT_URL,
         api_key=settings.QDRANT_API_KEY,
+        timeout=settings.QDRANT_TIMEOUT
     )
 
-    collection_name = settings.qdrant_config.get("collection_name", settings.QDRANT_COLLECTION_NAME)
-    vector_size = settings.qdrant_config.get("vector_size", settings.EMBEDDING_DIMENSION)
-    distance = settings.qdrant_config.get("distance", "Cosine")
+    collection_name = settings.QDRANT_COLLECTION_NAME
+    host = settings.QDRANT_HOST
+    port = settings.QDRANT_PORT
+    timeout = settings.QDRANT_TIMEOUT
+    api_key = settings.QDRANT_API_KEY
+    vector_size = settings.EMBEDDING_DIMENSION
+    distance = settings.QDRANT_DISTANCE
 
     # Map string distance to Qdrant enum
     distance_map = {

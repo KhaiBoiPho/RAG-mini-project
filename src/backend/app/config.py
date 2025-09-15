@@ -5,7 +5,8 @@ Configuration management for RAG Backend API
 
 import os
 from typing import Optional
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -22,12 +23,19 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     DEBUG: bool = Field(default=False, env="DEBUG")
+    LOG_LEVEL: str = Field(env="LOG_LEVEL")
+    
+    # OpenAI Configuration
+    OPENAI_API_KEY: Optional[str] = Field(env="OPENAI_API_KEY")
+    DEFAULT_MODEL: str = Field(default="gpt-5-nano", env="DEFAULT_MODEL")
+    MAX_TOKENS: int = Field(default=2048, env="MAX_TOKENS")
     
     # Qdrant Configuration
     QDRANT_URL: Optional[str] = Field(env="QDRANT_URL")
     QDRANT_API_KEY: Optional[str] = Field(env="QDRANT_API_KEY")
-    QDRANT_COLLECTION_NAME: str = Field(default="legal_rag", env="COLLECTION_NAME")
-    # QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
+    QDRANT_COLLECTION_NAME: str = Field(default="legal_rag", env="QDRANT_COLLECTION_NAME")
+    QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
+    QDRANT_DISTANCE: str = Field(env="QDRANT_DISTANCE")
     
     # HuggingFace Configuration
     HUGGINGFACE_API_KEY: Optional[str] = Field(env="HUGGINGFACE_API_KEY")
@@ -38,18 +46,6 @@ class Settings(BaseSettings):
         default="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
         env="EMBEDDINGS_MODEL_NAME"
     )
-    
-    # CPU Configuration
-    EMBEDDING_MAX_WORKERS: int = Field(env="EMBEDDING_MAX_WORKERS")
-    
-    # Text processing settings
-    CHUNK_SIZE: int = 1000
-    CHUNK_OVERLAP: int = 200
-    
-    # OpenAI Configuration
-    OPENAI_API_KEY: Optional[str] = Field(env="OPENAI_API_KEY")
-    DEFAULT_MODEL: str = Field(default="gpt-5-nano", env="DEFAULT_MODEL")
-    MAX_TOKENS: int = Field(default=2048, env="MAX_TOKENS")
     
     # Search Configuration
     SEMANTIC_SEARCH_TOP_K: int = Field(default=10, env="SEMANTIC_SEARCH_TOP_K")
@@ -75,7 +71,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
-
+        extra="ignore"
 
 
 # Global settings instance

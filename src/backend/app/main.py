@@ -1,31 +1,41 @@
-import os
-import uvicorn
+# src/backend/app/main.py
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import chat
-from .services.retrieval.qdrant_retriever import QdrantService
-from .services.embeddings_service import EmbeddingsService
-from .services.retrieval.hybrid_retriever import HybridSearchService
-from .services.generation.openai_service import OpenAIService
-from .utils.langsmith_logger import LangSmithLogger
-from .config import Config
-from qdrant_client import QdrantClient
+from .config import settings
 import logging
 
-logger = logging.getLogger("rag-backend")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Legal RAG API", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-app.include_router(chat.router)
+app = FastAPI(
+    title="RAG Mini Project API",
+    description="A Retrieval-Augmented Generation API for Vietnamese law documents",
+    version="1.0.0"
+)
 
-@app.on_event("startup")
-async def startup_event():
-    app.state.qdrant = QdrantService(QdrantClient(url=Config.QDRANT_URL, api_key=Config.QDRANT_API_KEY), Config.QDRANT_COLLECTION)
-    app.state.embeddings = EmbeddingsService(Config.HUGGINGFACE_API_KEY, Config.EMBEDDINGS_MODEL_NAME)
-    app.state.hybrid_search = HybridSearchService(app.state.qdrant, app.state.embeddings)
-    app.state.openai = OpenAIService(Config.OPENAI_API_KEY)
-    app.state.langsmith = LangSmithLogger(os.getenv("LANGSMITH_API_KEY"))
-    logger.info("All services initialized")
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure appropriately for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
+
+@app.get("/")
+async def root():
+    return {"message": "RAG Mini Project API", "status": "running"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

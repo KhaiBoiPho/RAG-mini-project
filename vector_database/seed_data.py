@@ -4,12 +4,12 @@ Seed Qdrant with legal documents
 """
 
 import logging
-from ingest.text_loader import DocumentLoader
-from ingest.text_cleaner import TextCleaner
-from ingest.text_splitter import DocumentProcessor
-from ingest.embedding import EmbeddingsModel
-from ingest.uploader import Uploader
-from config import settings
+from vector_database.ingest.text_loader import DocumentLoader
+from vector_database.ingest.text_cleaner import TextCleaner
+from vector_database.ingest.text_splitter import DocumentProcessor
+from vector_database.ingest.embedding import EmbeddingModel
+from vector_database.ingest.uploader import Uploader
+from vector_database.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -44,14 +44,14 @@ def seed_data(filepath: str, raw_text: str = None):
     } for chunk in processed_chunks]
 
     logger.info("Creating embeddings")
-    embedder = EmbeddingsModel()
+    embedder = EmbeddingModel()
     vectors = embedder.create_embeddings_batch(splits)
 
     logger.info("Uploading to Qdrant")
     uploader = Uploader(
         host=settings.QDRANT_HOST,
         port=settings.QDRANT_PORT,
-        collection=settings.qdrant_config.get("collection_name", settings.QDRANT_COLLECTION_NAME)
+        collection=settings.QDRANT_COLLECTION_NAME
     )
     uploader.upload(vectors, metadatas)
 

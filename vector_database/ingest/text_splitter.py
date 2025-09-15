@@ -102,7 +102,7 @@ class DocumentProcessor:
     def process_file(self, file_path: str, source_name: str = None) -> List[dict]:
         """Process a document file into chunks"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, 'r', encoding='utf-16le') as f:
                 content = f.read()
             
             chunks = self.text_splitter.split_text(content)

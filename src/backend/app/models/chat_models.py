@@ -8,7 +8,7 @@ import time
 from typing import List, Dict, Any, Optional, Literal
 from pydantic import BaseModel, Field, field_validator
 from enum import Enum
-
+from datetime import datetime
 
 class MessageRole(str, Enum):
     """Message role enumeration"""
@@ -21,6 +21,7 @@ class Message(BaseModel):
     """Chat message model"""
     role: MessageRole
     content: str = Field(..., min_length=1, max_length=10000)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
     
     @field_validator('content')
     def validate_content(cls, v):
@@ -31,7 +32,8 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     """Chat completion request model"""
-    messages: List[Message] = Field(..., min_items=1, max_items=50)
+    messages: List[Message] = Field(..., min_items=1, max_items=50, description="User's question or message")
+    conversation_id: Optional[str] = None
     model: Optional[str] = Field(default="gpt-5-nano", max_length=100)
     temperature: Optional[float] = Field(default=0.1, ge=0.0, le=2.0)
     max_tokens: Optional[int] = Field(default=2048, ge=1, le=4000)
@@ -61,7 +63,7 @@ class ChatRequest(BaseModel):
             "gpt-5-turbo"
         ]
         if v not in allowed_models:
-            raise ValueError(f"Model must be one of: {", ".join(allowed_models)}")
+            raise ValueError(f"Model must be one of: {', '.join(allowed_models)}")
         
         return v
 
@@ -74,10 +76,17 @@ class ChatChoice(BaseModel):
 
 
 class ChatUsage(BaseModel):
-    """Tolen usage information"""
+    """Token usage information"""
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
+
+
+class RetrievedDocument(BaseModel):
+    content: str = Field(..., description="Document content")
+    score: float = Field(..., description="Relevance score")
+    metadata: Optional[Dict[str, Any]] = None
+    source: Optional[str] = None
 
 
 class SearchResult(BaseModel):
@@ -89,17 +98,9 @@ class SearchResult(BaseModel):
     source: Optional[str] = Field(None, description="Source document")
 
 
-class DocumentChunk(BaseModel):
-    id: str = Field(..., description="Unique chunk identifier")
-    content: str = Field(..., description="Chunk content")
-    source: str = Field(..., description="Source document path")
-    chunk_index: int = Field(..., description="Index of chunk in document")
-    metadata: dict = Field(default_factory=dict, description="Additional metadata")
-
-
 class ChatResponse(BaseModel):
     """Chat completion response model"""
-    id: str = Field(default_factory=lambda: f"chatcmpl-{os.urandom(12).hex()}")
+    conversation_id: str = Field(..., description="Unique conversation identifier")
     object: str = "chat.completion"
     sources: List[SearchResult] = Field(default_factory=list, description="Source documents used")
     search_method: str = Field(None, description="Search method used (hybrid/vector/bm25)")
@@ -140,6 +141,13 @@ class HealthResponse(BaseModel):
     timestamp: int = Field(default_factory=lambda: int(time.time()))
     services: Dict[str, bool]
     version: str = "1.0.0"
+
+
+class ConversationHistory(BaseModel):
+    conversation_id: str
+    messages: List[Message]
+    created_at: datetime
+    updated_at: datetime
 
 
 class ErrorResponse(BaseModel):

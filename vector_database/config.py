@@ -25,10 +25,11 @@ class Settings(BaseSettings):
     # Qdrant Configuration
     QDRANT_URL: Optional[str] = Field(env="QDRANT_URL")
     QDRANT_API_KEY: Optional[str] = Field(env="QDRANT_API_KEY")
-    QDRANT_COLLECTION_NAME: str = Field(default="legal_rag", env="COLLECTION_NAME")
+    QDRANT_COLLECTION_NAME: str = Field(default="legal_rag", env="QDRANT_COLLECTION_NAME")
     QDRANT_HOST: str = Field(default=config["qdrant"]["host"], env="QDRANT_HOST")
     QDRANT_PORT: int = Field(default=config["qdrant"]["port"], env="QDRANT_PORT")
-    # QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
+    QDRANT_TIMEOUT: int = Field(default=30, env="QDRANT_TIMEOUT")
+    QDRANT_DISTANCE: str = Field(env="QDRANT_DISTANCE")
     
     # HuggingFace Configuration
     HUGGINGFACE_API_KEY: Optional[str] = Field(env="HUGGINGFACE_API_KEY")
@@ -39,9 +40,6 @@ class Settings(BaseSettings):
         default="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
         env="EMBEDDINGS_MODEL_NAME"
     )
-    
-    # CPU Configuration
-    EMBEDDING_MAX_WORKERS: int = Field(env="EMBEDDING_MAX_WORKERS")
     
     # Text processing settings
     CHUNK_SIZE: int = 1000
@@ -61,7 +59,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-        # case_sensitive = True
+        case_sensitive = True
         extra="ignore"
 
 # Global settings instance
