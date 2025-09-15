@@ -26,7 +26,7 @@ class Uploader:
         """Upload embeddings and metadata to Qdrant"""
         try:
             points = [
-                PointStruct(id=str(uuid.uuid4().hex()), vector=vec, payload=meta)
+                PointStruct(id=str(uuid.uuid4().hex), vector=vec, payload=meta)
                 for vec, meta in zip(vectors, metadatas)
             ]
             self.client.upsert(collection_name=self.collection, points=points)

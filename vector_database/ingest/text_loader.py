@@ -70,7 +70,3 @@ class DocumentLoader:
         docs = loader.load()
         
         return docs
-
-
-# Global service instance
-document_loader = DocumentLoader()
