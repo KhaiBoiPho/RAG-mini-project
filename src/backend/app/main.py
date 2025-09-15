@@ -3,11 +3,11 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import chat
-from .services.qdrant_service import QdrantService
+from .services.retrieval.qdrant_retriever import QdrantService
 from .services.embeddings_service import EmbeddingsService
-from .services.hybrid_search_service import HybridSearchService
-from .services.openai_service import OpenAIService
-from .services.langsmith_logger import LangSmithLogger
+from .services.retrieval.hybrid_retriever import HybridSearchService
+from .services.generation.openai_service import OpenAIService
+from .utils.langsmith_logger import LangSmithLogger
 from .config import Config
 from qdrant_client import QdrantClient
 import logging

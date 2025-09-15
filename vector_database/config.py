@@ -3,7 +3,6 @@
 Configuration management for RAG Backend API
 """
 
-import os
 from typing import Optional
 from pydantic import BaseSettings, Field
 from dotenv import load_dotenv
@@ -14,14 +13,6 @@ load_dotenv()
 
 class Settings(BaseSettings):
     """Application settings with enviroment variable support"""
-    
-    # API Configuration
-    API_TITLE: str = "Legal RAG API"
-    API_DESCRIPTION: str = "API for Legal RAG Chatbot"
-    API_VERSION: str = "1.0.0"
-    API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8000
-    DEBUG: bool = Field(default=False, env="DEBUG")
     
     # Qdrant Configuration
     QDRANT_URL: Optional[str] = Field(env="QDRANT_URL")
@@ -46,11 +37,6 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
     
-    # OpenAI Configuration
-    OPENAI_API_KEY: Optional[str] = Field(env="OPENAI_API_KEY")
-    DEFAULT_MODEL: str = Field(default="gpt-5-nano", env="DEFAULT_MODEL")
-    MAX_TOKENS: int = Field(default=2048, env="MAX_TOKENS")
-    
     # Search Configuration
     SEMANTIC_SEARCH_TOP_K: int = Field(default=10, env="SEMANTIC_SEARCH_TOP_K")
     SCORE_THRESHOLD: float = Field(default=0.5, env="SCORE_THRESHOLD")
@@ -61,15 +47,6 @@ class Settings(BaseSettings):
     # Performance Configuration
     MAX_CONTEXT_LENGTH: int = Field(default=4000, env="MAX_CONTEXT_LENGTH")
     REQUEST_TIMEOUT: int = Field(default=30, env="REQUEST_TIMEOUT")
-    
-    # Logging Configuration
-    LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
-    LOG_FILE: str = Field(default="rag_backend.log", env="LOG_FILE")
-    
-    # CORS Configuration
-    ALLOWED_ORIGINS: list = Field(default=["*"], env="ALLOWED_ORIGINS")
-    ALLOWED_METHODS: list = Field(default=["*"], env="ALLOWED_METHODS")
-    ALLOWED_HEADERS: list = Field(default=["*"], env="ALLOWED_HEADERS")
     
     class Config:
         env_file = ".env"
@@ -91,7 +68,6 @@ def vaidate_required_settings():
     required_settings = [
         ("QDRANT_URL", settings.QDRANT_URL),
         ("HUGGINGFACE_API_KEY", settings.HUGGINGFACE_API_KEY),
-        ("OPENAI_API_KEY", settings.OPENAI_API_KEY),
     ]
     
     missing_settings = []

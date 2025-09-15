@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from ..models.chat_models import ChatRequest, ChatResponse
-from ..services.hybrid_search_service import HybridSearchService
-from ..services.openai_service import OpenAIService
-from ..services.langsmith_logger import LangSmithLogger
+from ..services.retrieval.hybrid_retriever import HybridSearchService
+from ..services.generation.openai_service import OpenAIService
+from ..utils.langsmith_logger import LangSmithLogger
 import logging
 
 logger = logging.getLogger("rag-backend.chat")

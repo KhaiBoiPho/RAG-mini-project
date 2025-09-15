@@ -97,7 +97,7 @@ class QdrantService:
     async def insert_documents(self, documents: List[Dict[str, Any]]):
         points = [
             models.PointStruct(
-                id=str(uuid.uuid4()),
+                id=str(uuid.uuid4().hex()),
                 vector=doc["embedding"],
                 payload={
                     "content": doc["content"],

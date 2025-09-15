@@ -1,5 +1,5 @@
-from .qdrant_service import QdrantService
-from .embeddings_service import EmbeddingsService
+from .qdrant_retriever import QdrantService
+from ..embeddings_service import EmbeddingsService
 
 class HybridSearchService:
     def __init__(self, qdrant_service: QdrantService, embeddings_service: EmbeddingsService):
