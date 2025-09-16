@@ -4,7 +4,7 @@ Configuration management for RAG Backend API
 """
 
 import os
-from typing import Optional
+from typing import Any, List, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
@@ -28,7 +28,11 @@ class Settings(BaseSettings):
     # OpenAI Configuration
     OPENAI_API_KEY: Optional[str] = Field(env="OPENAI_API_KEY")
     DEFAULT_MODEL: str = Field(default="gpt-5-nano", env="DEFAULT_MODEL")
-    MAX_TOKENS: int = Field(default=2048, env="MAX_TOKENS")
+    MAX_OUTPUT_TOKENS: int = Field(default=2048, env="MAX_OUTPUT_TOKENS")
+    TEMPERATURE_GENERATION: float = Field(env="TEMPERATURE_GENERATION")
+    CONVERSATION_HISTORY: Optional[List[Any]] = []
+    OPENAI_TIMEOUT: int = Field(env="OPENAI_TIMEOUT")
+    STREAM_BOOL: bool = Field(env="STREAM_BOOL")
     
     # Qdrant Configuration
     QDRANT_URL: Optional[str] = Field(env="QDRANT_URL")

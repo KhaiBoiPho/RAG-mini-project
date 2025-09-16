@@ -1,0 +1,18 @@
+# src/backend/app/prompts/chat_prompt.txt
+Dựa trên các thông tin pháp luật sau đây:
+
+{context}
+
+Hãy trả lời câu hỏi: {question}
+
+HƯỚNG DẪN TRẢ LỜI:
+1. Đọc kỹ thông tin từ các tài liệu được cung cấp
+2. Trả lời câu hỏi một cách chính xác và đầy đủ
+3. Trích dẫn điều khoản cụ thể từ các tài liệu
+4. Nếu thông tin không đủ, hãy nói rõ và gợi ý cách tìm thêm
+5. Sử dụng ngôn ngữ Tiếng Việt, dễ hiểu
+
+LƯU Ý:
+- Chỉ sử dụng thông tin từ ngữ cảnh được cung cấp
+- Không bịa đặt hoặc suy đoán thông tin
+- Nếu câu hỏi không liên quan đến pháp luật, hãy từ chối trả lời một cách lịch sự
