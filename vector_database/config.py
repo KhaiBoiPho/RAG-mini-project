@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     BM25_WEIGHT: float = Field(default=0.3, env="BM25_WEIGHT")
     VECTOR_WEIGHT: float = Field(default=0.7, env="VECTOR_WEIGHT")
     HIGH_CONFIDENCE_THRESHOLD: float = Field(default=0.85, env="HIGH_CONFIDENCE_THRESHOLD")
+    MIN_VECTOR_SCORE: float = 0.1
+    MIN_BM25_SCORE: float = 0.1
+    RRF_K: int = 60
     
     # Performance Configuration
     MAX_CONTEXT_LENGTH: int = Field(default=4000, env="MAX_CONTEXT_LENGTH")

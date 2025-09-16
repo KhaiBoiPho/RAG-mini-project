@@ -26,7 +26,7 @@ async def test_generate_success(monkeypatch):
     )
 
     monkeypatch.setattr(
-        "openai.ChatCompletion.acreate",
+        "openai.completions.acreate",
         AsyncMock(return_value=mock_response)
     )
 
@@ -44,7 +44,7 @@ async def test_generate_error(monkeypatch):
 
     # Force OpenAI to raise an error
     monkeypatch.setattr(
-        "openai.ChatCompletion.acreate",
+        "openai.completions.acreate",
         AsyncMock(side_effect=RuntimeError("API error"))
     )
 
@@ -58,7 +58,7 @@ async def test_health_check_success(monkeypatch):
 
     # Mock successful health check
     monkeypatch.setattr(
-        "openai.ChatCompletion.acreate",
+        "openai.completions.acreate",
         AsyncMock(return_value="ok")
     )
 
@@ -100,7 +100,7 @@ async def test_stream_generate(monkeypatch):
             )
 
     monkeypatch.setattr(
-        "openai.ChatCompletion.acreate",
+        "openai.completions.acreate",
         AsyncMock(return_value=fake_stream())
     )
 

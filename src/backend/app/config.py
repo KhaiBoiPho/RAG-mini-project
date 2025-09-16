@@ -70,6 +70,14 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
     LOG_FILE: str = Field(default="rag_backend.log", env="LOG_FILE")
     
+    # Cache Configuration
+    ENABLE_CACHE: bool = True
+    CACHE_TTL: int = 1800  # 30 minutes
+    CACHE_MAX_SIZE: int = 1000
+    MAX_CONVERSATION_HISTORY: int = 5
+    DEFAULT_TOP_K: int = 5
+    RETRIEVAL_TIMEOUT: int = 30
+    
     # CORS Configuration
     ALLOWED_ORIGINS: list = Field(default=["*"], env="ALLOWED_ORIGINS")
     ALLOWED_METHODS: list = Field(default=["*"], env="ALLOWED_METHODS")

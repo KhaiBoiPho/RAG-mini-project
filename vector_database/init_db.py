@@ -49,6 +49,24 @@ def init_qdrant():
         client.create_collection(
             collection_name=collection_name,
             vectors_config=VectorParams(size=vector_size, distance=distance_metric),
+            hnsw_config={
+                "m": 16,              # Graph connectivity: avg. number of links per node
+                                    # ↑ higher -> better recall, but more memory & slower inserts
+                                    # ↓ lower  -> less memory, but lower recall
+                "ef_construct": 100   # Build-time depth: candidates checked during index construction
+                                    # ↑ higher -> better index quality & recall, slower indexing
+                                    # ↓ lower  -> faster build, weaker recall
+            }
+        )
+        
+        # Query-time parameter: can be tuned dynamically
+        client.update_collection(
+            collection_name=collection_name,
+            hnsw_config_diff={
+                "ef": 128             # Search depth: number of candidates explored during query
+                                    # ↑ higher -> better recall, slower queries
+                                    # ↓ lower  -> faster queries, may miss nearest neighbors
+            }
         )
         logger.info(f"Collection '{collection_name}' created successfully.")
 

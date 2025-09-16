@@ -3,16 +3,16 @@
 from typing import List, Dict, Any, Optional, AsyncGenerator
 import openai
 from openai import AsyncOpenAI
-from ...config import settings
-from ...utils.logger import get_logger
-from ...models.chat_models import Message, MessageRole
+from src.backend.app.config import settings
+from src.backend.app.utils.logger import get_logger
+from src.backend.app.models.chat_models import Message, MessageRole
 import asyncio
 import os
 import time
 
 logger = get_logger(__name__)
 
-
+# src/backend/app/models/chat_models.py
 class OpenAIService:
     def __init__(self):
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
@@ -101,7 +101,7 @@ class OpenAIService:
             messages.append({"role": "user", "content": user_prompt})
             
             # Call OpenAI API
-            response = await openai.ChatCompletion.acreate(
+            response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 max_tokens=max_tokens,
@@ -160,7 +160,7 @@ class OpenAIService:
             
             messages.append({"role": "user", "content": user_prompt})
 
-            stream = await openai.ChatCompletion.acreate(
+            stream = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 stream=False,
@@ -207,7 +207,7 @@ class OpenAIService:
         """Check if OpenAI service is healthy"""
         try:
             # Simple test call
-            response = await openai.ChatCompletion.create(
+            response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": "Test"}],
                 max_tokens=5,
