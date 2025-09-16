@@ -51,6 +51,10 @@ class Settings(BaseSettings):
         env="EMBEDDINGS_MODEL_NAME"
     )
     
+    # BM25 Configuration
+    BM25_K1: float = Field(default=1.5, env="BM25_K1")
+    BM25_B: float = Field(default=0.75, env="BM25_B")
+    
     # Search Configuration
     SEMANTIC_SEARCH_TOP_K: int = Field(default=10, env="SEMANTIC_SEARCH_TOP_K")
     SCORE_THRESHOLD: float = Field(default=0.5, env="SCORE_THRESHOLD")

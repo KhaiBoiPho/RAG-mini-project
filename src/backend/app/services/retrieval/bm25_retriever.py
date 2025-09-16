@@ -1,4 +1,5 @@
 # src/backend/app/services/retrieval/bm25_retriever.py
+
 from typing import List, Dict, Any, Optional
 from rank_bm25 import BM25Okapi
 import asyncio
@@ -6,8 +7,9 @@ import pickle
 import os
 from ...config import settings
 from ...utils.logger import get_logger
-import jieba
 import re
+from underthesea import word_tokenize
+
 
 logger = get_logger(__name__)
 
@@ -15,8 +17,8 @@ class BM25Retriever:
     def __init__(self):
         self.bm25_index = None
         self.documents = []
-        self.k1 = settings.bm25_k1
-        self.b = settings.bm25_b
+        self.k1 = settings.BM25_K1
+        self.b = settings.BM25_B
         self.index_path = "data/bm25_index.pkl"
         self.docs_path = "data/bm25_docs.pkl"
         self._load_or_build_index()
@@ -25,20 +27,21 @@ class BM25Retriever:
         """Load existing BM25 index or build new one"""
         try:
             if os.path.exists(self.index_path) and os.path.exists(self.docs_path):
-                logger.info("Loading existing BM25 index...")
+                logger.info("Loading existing BM25 index ...")
                 self._load_index()
             else:
-                logger.info("Building new BM25 index...")
+                logger.info("Building new BM25 index ...")
                 asyncio.create_task(self._build_index_from_qdrant())
+        
         except Exception as e:
             logger.error(f"Error with BM25 index: {str(e)}")
     
     def _load_index(self):
         """Load BM25 index from disk"""
         with open(self.index_path, 'rb') as f:
-            self.bm25_index = pickle.load(f)
+            self.bm25_index = pickle.loads(f)
         with open(self.docs_path, 'rb') as f:
-            self.documents = pickle.load(f)
+            self.documents = pickle.loads(f)
         
         logger.info(f"Loaded BM25 index with {len(self.documents)} documents")
     
@@ -52,7 +55,7 @@ class BM25Retriever:
             pickle.dump(self.documents, f)
     
     async def _build_index_from_qdrant(self):
-        """Build BM25 index from documents in Qdrant"""
+        """Build BM25 index from document in Qdrant"""
         try:
             from .qdrant_retriever import QdrantRetriever
             qdrant = QdrantRetriever()
@@ -60,8 +63,8 @@ class BM25Retriever:
             # Get all documents from Qdrant
             # Note: In production, implement pagination for large collections
             search_results = await qdrant.client.scroll(
-                collection_name=settings.qdrant_collection_name,
-                limit=10000  # Adjust based on your collection size
+                collection_name=settings.QDRANT_COLLECTION_NAME,
+                limit=1000 # Adjust based on your collection size
             )
             
             documents = []
@@ -88,7 +91,7 @@ class BM25Retriever:
             self._save_index()
             
             logger.info(f"Built BM25 index with {len(documents)} documents")
-            
+        
         except Exception as e:
             logger.error(f"Error building BM25 index: {str(e)}")
             raise
@@ -101,11 +104,11 @@ class BM25Retriever:
         text = re.sub(r'[^\w\s]', ' ', text.lower())
         text = re.sub(r'\s+', ' ', text).strip()
         
-        # Use jieba for Vietnamese tokenization (you might want to use a Vietnamese-specific tokenizer)
-        tokens = list(jieba.cut(text))
+        # Use underthesea for Vietnamese tokenization
+        tokens = word_tokenize(text, format="list")
         
         # Filter out short tokens and numbers
-        tokens = [token for token in tokens if len(token) > 1 and not token.isdigit()]
+        tokens = [tokens for token in tokens if len(token) > 1 and not token.isdigit()]
         
         return tokens
     

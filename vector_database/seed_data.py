@@ -41,6 +41,7 @@ def seed_data(filepath: str, raw_text: str = None):
         "id": chunk["id"],
         "source": chunk["source"],
         "chunk_index": chunk["chunk_index"],
+        "content": chunk["content"],
     } for chunk in processed_chunks]
 
     logger.info("Creating embeddings")
