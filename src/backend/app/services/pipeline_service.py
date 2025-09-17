@@ -1,10 +1,10 @@
 # src/backend/app/services/pipeline_service.py
 from typing import List, Dict, Any, Optional, AsyncGenerator, Tuple
-from retrieval.hybrid_retriever import HybridRetriever
-from retrieval.qdrant_retriever import QdrantRetriever
-from retrieval.bm25_retriever import BM25Retriever
-from retrieval.cache_service import CacheService
-from generation.openai_service import OpenAIService
+from src.backend.app.services.retrieval.hybrid_retriever import HybridRetriever
+from src.backend.app.services.retrieval.qdrant_retriever import QdrantRetriever
+from src.backend.app.services.retrieval.bm25_retriever import BM25Retriever
+from src.backend.app.services.retrieval.cache_service import CacheService
+from src.backend.app.services.generation.openai_service import OpenAIService
 from src.backend.app.models.chat_models import RetrievedDocument, Message
 from src.backend.app.config import settings
 from src.backend.app.utils.logger import get_logger

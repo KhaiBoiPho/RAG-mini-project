@@ -95,7 +95,7 @@ async def chat(
                 source=doc.score,
                 metadata=doc.metadata or {},
                 chunk_id=doc.metadata.get("chunk_id") if doc.metadata else None,
-                source=doc.source
+                # source=doc.source
             )
             source.append(search_result)
         
