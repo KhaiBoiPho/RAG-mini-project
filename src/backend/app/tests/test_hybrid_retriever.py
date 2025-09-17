@@ -17,8 +17,8 @@ def retriever():
 @pytest.mark.asyncio
 async def test_vector_search_filters_by_min_score(retriever):
     retriever.qdrant_retriever.search.return_value = [
-        {"id": 1, "score": 0.05},  # dưới ngưỡng
-        {"id": 2, "score": 0.5},   # hợp lệ
+        {"id": 1, "score": 0.05},
+        {"id": 2, "score": 0.5},
     ]
     results = await retriever._vector_search("query", 5)
     assert len(results) == 1
@@ -49,7 +49,6 @@ async def test_hybrid_search_combines_results(retriever):
 
     results = await retriever._hybrid_search("query", top_k=2)
     assert len(results) == 2
-    # doc2 xuất hiện trong cả hai → fusion_score phải cao
     ids = [d["id"] for d in results]
     assert "2" in ids
 
