@@ -194,7 +194,7 @@ This project is designed for comprehensive evaluation on Vietnamese traffic law 
 - **Generation Quality**: BLEU, ROUGE, semantic similarity scores
 - **End-to-end Performance**: Response time, user satisfaction metrics
 
-*Detailed evaluation results will be published with reference to [EVALUATION_DATASET_LINK] and accompanying research paper [PAPER_LINK]*
+*Detailed evaluation results will be published with reference to [[EVALUATION_DATASET_LINK](https://huggingface.co/datasets/taidng/UIT-ViQuAD2.0)] and accompanying research paper [[PAPER_LINK](https://arxiv.org/abs/2009.14725)]*
 
 ## Development Status
 
@@ -231,7 +231,7 @@ This project is designed for comprehensive evaluation on Vietnamese traffic law 
 
 ## Demo
 
-[INSERT_VIDEO_DEMO_LINK_HERE]
+[[Video demo my RAG Chatbot !!!](https://www.youtube.com/watch?v=9oUDb0umIoY)]
 
 ---
 
