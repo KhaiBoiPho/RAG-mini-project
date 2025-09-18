@@ -5,6 +5,7 @@ Pydantic models for chat API
 
 import os
 import time
+from pydantic import ValidationError
 from typing import List, Dict, Any, Optional, Literal
 from pydantic import BaseModel, Field, field_validator
 from enum import Enum
@@ -32,39 +33,22 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     """Chat completion request model"""
-    messages: List[Message] = Field(..., min_items=1, max_items=50, description="User's question or message")
+    messages: List[Message] = Field(..., min_items=1)
     conversation_id: Optional[str] = None
-    model: Optional[str] = Field(default="gpt-5-nano", max_length=100)
-    temperature: Optional[float] = Field(default=0.1, ge=0.0, le=2.0)
-    max_tokens: Optional[int] = Field(default=2048, ge=1, le=4000)
+    model: Optional[str] = Field(default="gpt-5-nano")
+    # gpt-5-nano not support settings temperature
+    temperature: Optional[float] = Field(default=1)
+    max_completion_tokens: Optional[int] = Field(default=2048)
     stream: Optional[bool] = False
-    top_k: Optional[int] = Field(default=5, ge=1, le=20)
-    
+    top_k: Optional[int] = Field(default=5)
+
+    # Validator chỉ cần check message cuối cùng là user
     @field_validator('messages')
-    def validate_messages(cls, v):
+    def check_last_message_is_user(cls, v):
         if not v:
             raise ValueError("At least one message is required")
-        
-        # Check that the last message is from user
         if v[-1].role != MessageRole.USER:
             raise ValueError("Last message must be from user")
-        
-        return v
-    
-    @field_validator('model')
-    def validate_model(cls, v):
-        allowed_models = [
-            "gpt-5-nano",
-            "gpt-4o-mini",
-            "gpt-5o-mini",
-            "gpt-4o",
-            "gpt-3.5-turbo",
-            "gpt-4-turbo",
-            "gpt-5-turbo"
-        ]
-        if v not in allowed_models:
-            raise ValueError(f"Model must be one of: {', '.join(allowed_models)}")
-        
         return v
 
 
@@ -80,13 +64,6 @@ class ChatUsage(BaseModel):
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
-
-
-class RetrievedDocument(BaseModel):
-    content: str = Field(..., description="Document content")
-    score: float = Field(..., description="Relevance score")
-    metadata: Optional[Dict[str, Any]] = None
-    source: Optional[str] = None
 
 
 class SearchResult(BaseModel):
@@ -117,7 +94,7 @@ class ChatResponse(BaseModel):
                 "id": "chatcmpl-abcdxyz567",
                 "object": "chat.completion",
                 "created": 1677652288,
-                "model": "gpt-5-nano",
+                "model": "gpt-4o-mini",
                 "choices": [{
                     "index": 0,
                     "message": {

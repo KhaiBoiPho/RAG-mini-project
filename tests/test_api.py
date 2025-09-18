@@ -103,8 +103,8 @@ class APITester:
                         "content": test_case["query"]
                     }
                 ],
-                "model": "gpt-5-nano",
-                "temperature": 0.1,
+                "model": "gpt-4o-mini",
+                "temperature": 1,
                 "top_k": 5
             }
             
@@ -150,7 +150,7 @@ class APITester:
                     "content": "Quy định về đăng kiểm xe ô tô trong luật giao thông?"
                 }
             ],
-            "model": "gpt-5-nano",
+            "model": "gpt-4o-mini",
             "stream": True,
             "top_k": 3
         }
@@ -211,7 +211,7 @@ class APITester:
                     "content": "Test conversation management"
                 }
             ],
-            "model": "gpt-5-nano"
+            "model": "gpt-4o-mini"
         }
         
         try:
@@ -282,7 +282,7 @@ class APITester:
                 "name": "Empty messages",
                 "payload": {
                     "messages": [],
-                    "model": "gpt-5-nano"
+                    "model": "gpt-4o-mini"
                 },
                 "expected_status": 422
             },
@@ -290,7 +290,7 @@ class APITester:
                 "name": "Invalid message role",
                 "payload": {
                     "messages": [{"role": "invalid", "content": "test"}],
-                    "model": "gpt-5-nano"
+                    "model": "gpt-4o-mini"
                 },
                 "expected_status": 422
             }

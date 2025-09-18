@@ -5,7 +5,7 @@ from src.backend.app.services.retrieval.qdrant_retriever import QdrantRetriever
 from src.backend.app.services.retrieval.bm25_retriever import BM25Retriever
 from src.backend.app.services.retrieval.cache_service import CacheService
 from src.backend.app.services.generation.openai_service import OpenAIService
-from src.backend.app.models.chat_models import RetrievedDocument, Message
+from src.backend.app.models.chat_models import Message, SearchResult
 from src.backend.app.config import settings
 from src.backend.app.utils.logger import get_logger
 import asyncio
@@ -111,11 +111,16 @@ class PipelineService:
                 )
             else:
                 # Generate complete response
-                response = await self.generator.generate(
+                logger.info("Starting response generation...")
+                
+                generation_response = await self.generator.generate(
                     query=query,
                     context_docs=retrieved_docs,
                     conversation_history=conversation_history
                 )
+                
+                logger.info(f"Generation response keys: {list(generation_response.keys())}")
+                logger.info(f"Generated content length: {len(generation_response.get('content', ''))}")
                 
                 generation_time = time.time() - generation_start
                 total_time = time.time() - start_time
@@ -123,16 +128,20 @@ class PipelineService:
                 # Update final metadata
                 metadata.update({
                     "generation_time": generation_time,
-                    "total_time": total_time
+                    "total_time": total_time,
+                    "model_used": generation_response.get("model", "unknown"),
+                    "finish_reason": generation_response.get("finish_reason", "unknown")
                 })
                 
+                response_content = generation_response.get("content", "Không thể tạo phản hồi.")
+                
                 # Update conversation history
-                self._update_conversation_history(conversation_id, query, response)
+                self._update_conversation_history(conversation_id, query, response_content)
                 
                 return {
-                    "response": response,
+                    "response": response_content,
                     "retrieved_documents": [
-                        RetrievedDocument(
+                        SearchResult(
                             content=doc["content"],
                             score=doc["score"],
                             metadata=doc.get("metadata", {}),
@@ -315,14 +324,26 @@ class PipelineService:
             full_response = ""
             generation_start = time.time()
             
-            async for chunk in self.generator.stream_generate(
-                query=query,
-                context_docs=retrieved_docs,
-                conversation_history=conversation_history
-            ):
-                content = chunk.get("content", "")
-                full_response += content
-                yield {"type": "response_chunk", "content": content}
+            try: 
+                async for chunk in self.generator.stream_generate(
+                    query=query,
+                    context_docs=retrieved_docs,
+                    conversation_history=conversation_history
+                ):
+                    if isinstance(chunk, str):
+                        if chunk.startswith("Error:"):
+                            yield {"type": "error", "message": chunk}
+                            return
+                        else:
+                            full_response += chunk
+                            yield {"type": "response_chunk", "content": chunk}
+                    else:
+                        logger.warning(f"Unexpected chunk type: {type(chunk)}")
+                        
+            except Exception as stream_error:
+                logger.error(f"Error in streaming generation: {stream_error}")
+                yield {"type": "error", "message": f"Streaming error: {str(stream_error)}"}
+                return
             
             generation_time = time.time() - generation_start
             
@@ -355,6 +376,10 @@ class PipelineService:
         """Update conversation history in memory store"""
         if conversation_id not in self.conversation_store:
             self.conversation_store[conversation_id] = []
+        
+        # Ensure ai_response is string
+        if isinstance(ai_response, dict):
+            ai_response = ai_response.get("content", str(ai_response))
         
         self.conversation_store[conversation_id].extend([
             Message(

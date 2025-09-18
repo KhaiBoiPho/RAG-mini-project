@@ -14,8 +14,8 @@ def test_message_whitespace_content():
 
 def test_chatrequest_valid():
     msg1 = Message(role=MessageRole.USER, content="Hi")
-    request = ChatRequest(messages=[msg1], model="gpt-5-nano")
-    assert request.model == "gpt-5-nano"
+    request = ChatRequest(messages=[msg1], model="gpt-4o-mini")
+    assert request.model == "gpt-4o-mini"
     assert request.messages[0].content == "Hi"
 
 def test_chatrequest_last_message_not_user():
@@ -35,13 +35,13 @@ def test_chatchoice_and_response():
     
     response = ChatResponse(
         conversation_id="conv123",
-        model="gpt-5-nano",
+        model="gpt-4o-mini",
         choices=[choice],
         usage=usage
     )
     
     assert response.conversation_id == "conv123"
-    assert response.model == "gpt-5-nano"
+    assert response.model == "gpt-4o-mini"
     assert response.choices[0].message.content == "Hello"
     assert response.usage.total_tokens == 15
 

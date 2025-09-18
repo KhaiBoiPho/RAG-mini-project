@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
 from src.backend.app.models.chat_models import (
     ChatRequest, ChatResponse, ChatChoice, ChatUsage,
     HealthResponse, ErrorResponse, Message, MessageRole,
@@ -34,26 +35,29 @@ async def chat(
     request: ChatRequest,
     pipeline: PipelineService = Depends(get_pipeline_service)
 ):
-    """
-    Process a chat message and return AI response with retrieved context
-    """
+    logger.info(f"Raw request received: {request}")
+    logger.info(f"Messages count: {len(request.messages)}")
+    logger.info(f"Last message role: {request.messages[-1].role}")
+    logger.info(f"Last message content length: {len(request.messages[-1].content)}")
+    
     try:
         start_time = time.time()
         
-        # Generate conversation ID if not provieded
+        # Generate conversation ID if not provided
         if not request.conversation_id:
             request.conversation_id = str(uuid.uuid4())
             
-        logger.info(f"Preprocessing chat request: {request.conversation_id}")
+        logger.info(f"Processing chat request: {request.conversation_id}")
         
         # Extract the last user message for processing
         user_message = request.messages[-1].content
+        logger.info(f"User message: '{user_message[:100]}...'")
         
         # Process the request through RAG pipeline
         result = await pipeline.process_query(
             query=user_message,
             conversation_id=request.conversation_id,
-            method="hybrid", # Default to hybrid retrieval
+            method="hybrid",
             top_k=request.top_k,
             filters=None,
             use_cache=True,
@@ -61,15 +65,19 @@ async def chat(
             stream_response=False
         )
         
+        logger.info(f"Pipeline result keys: {list(result.keys())}")
+        
         # Extract metadata
         metadata = result.get("metadata", {})
         retrieval_time = metadata.get("retrieval_time", 0.0)
         generation_time = metadata.get("generation_time", 0.0)
         
+        logger.info(f"Response content length: {len(result.get('response', ''))}")
+        
         # Create assistant message
         assistant_message = Message(
             role=MessageRole.ASSISTANT,
-            content=result["response"],
+            content=result.get("response", "No response generated"),
             timestamp=datetime.now()
         )
         
@@ -80,7 +88,7 @@ async def chat(
             finish_reason="stop"
         )
         
-        # Create usage information (mock values since pipeline doesn't return token counts)
+        # Create usage information
         usage = ChatUsage(
             prompt_tokens=0,
             completion_tokens=0,
@@ -88,39 +96,74 @@ async def chat(
         )
         
         # Convert retrieved documents to SearchResult format
-        source = []
-        for doc in result.get("retrieved_documents", []):
-            search_result = SearchResult(
-                content=doc.content,
-                source=doc.score,
-                metadata=doc.metadata or {},
-                chunk_id=doc.metadata.get("chunk_id") if doc.metadata else None,
-                # source=doc.source
-            )
-            source.append(search_result)
+        sources = []
+        retrieved_docs = result.get("retrieved_documents", [])
+        logger.info(f"Retrieved documents count: {len(retrieved_docs)}")
         
-        # Create reponse
-        response = ChatResponse(
-            conversation_id=request.conversation_id,
-            model=request.model,
-            choices=[choice],
-            usage=usage,
-            sources=source,
-            search_method=metadata.get("retrieval_method", "unknown"),
-            retrieval_time=retrieval_time,
-            generation_time=generation_time,
-            created=int(time.time())
-        )
+        for i, doc in enumerate(retrieved_docs):
+            try:
+                logger.info(f"Processing doc {i}: score={getattr(doc, 'score', 'N/A')}, source={getattr(doc, 'source', 'N/A')}")
+                
+                search_result = SearchResult(
+                    content=getattr(doc, 'content', ''),
+                    score=getattr(doc, 'score', 0.0),
+                    metadata=getattr(doc, 'metadata', {}) or {},
+                    chunk_id=getattr(doc, 'metadata', {}).get("chunk_id") if hasattr(doc, 'metadata') and doc.metadata else None,
+                    source=getattr(doc, 'source', None)
+                )
+                sources.append(search_result)
+                logger.info(f"Successfully created SearchResult {i}")
+                
+            except Exception as doc_error:
+                logger.error(f"Error processing document {i}: {doc_error}")
+                # Skip problematic document but continue processing
+                continue
+        
+        logger.info(f"Created {len(sources)} search results")
+        
+        # Create response
+        try:
+            response = ChatResponse(
+                conversation_id=request.conversation_id,
+                model=request.model,
+                choices=[choice],
+                usage=usage,
+                sources=sources,
+                search_method=metadata.get("retrieval_method", "unknown"),
+                retrieval_time=retrieval_time,
+                generation_time=generation_time,
+                created=int(time.time())
+            )
+            
+            logger.info("ChatResponse created successfully")
+            
+        except ValidationError as response_error:
+            logger.error(f"Error creating ChatResponse: {response_error}")
+            logger.error(f"Response validation details: {response_error.errors()}")
+            raise HTTPException(
+                status_code=422, 
+                detail=f"Response validation error: {response_error.errors()}"
+            )
         
         total_time = retrieval_time + generation_time
         logger.info(f"Chat request completed in {total_time:.2f}s")
         return response
     
+    except ValidationError as e:
+        logger.error(f"Pydantic validation error: {e}")
+        logger.error(f"Validation details: {e.errors()}")
+        raise HTTPException(status_code=422, detail={
+            "error": "ValidationError",
+            "details": e.errors(),
+            "message": "Request validation failed"
+        })
     except ValueError as e:
-        logger.error(f"Validation error: {str(e)}")
+        logger.error(f"Value error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error processing chat request: {str(e)}")
+        logger.error(f"Unexpected error processing chat request: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
     
 
@@ -279,7 +322,7 @@ async def chat_stream(
         logger.error(f"Error in streaming chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.get("health", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse)
 async def health_check(pipeline: PipelineService = Depends(get_pipeline_service)):
     """
     Check the health of all service

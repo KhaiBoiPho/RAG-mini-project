@@ -11,6 +11,12 @@ HƯỚNG DẪN TRẢ LỜI:
 3. Trích dẫn điều khoản cụ thể từ các tài liệu
 4. Nếu thông tin không đủ, hãy nói rõ và gợi ý cách tìm thêm
 5. Sử dụng ngôn ngữ Tiếng Việt, dễ hiểu
+6. Trình bày câu trả lời bằng **Markdown** với format sau:
+   - Dùng tiêu đề `##` hoặc `###` cho các mục chính
+   - Các điều kiện liệt kê bằng danh sách số thứ tự
+   - In đậm những khái niệm quan trọng
+   - Ghi chú hoặc lời khuyên ở cuối cùng dưới tiêu đề **Lời khuyên**
+
 
 LƯU Ý:
 - Chỉ sử dụng thông tin từ ngữ cảnh được cung cấp

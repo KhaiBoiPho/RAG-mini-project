@@ -26,7 +26,7 @@ class OpenAIService:
         try:
             prompt_path = os.path.join(
                 os.path.dirname(__file__),
-                "../../prompts/system_prompt.txt"
+                "src/backend/app/prompts/system_prompt.txt"
             )
             with open(prompt_path, 'r', encoding='utf-8') as f:
                 return f.read().strip()
@@ -43,7 +43,7 @@ class OpenAIService:
         try:
             prompt_path = os.path.join(
                 os.path.dirname(__file__), 
-                "../../prompts/chat_prompt.txt"
+                "src/backend/app/prompts/chat_prompt.txt"
             )
             with open(prompt_path, 'r', encoding='utf-8') as f:
                 return f.read().strip()
@@ -64,7 +64,7 @@ class OpenAIService:
         context_docs: List[Dict[str, Any]],
         conversation_history: Optional[List[Message]] = None,
         model: Optional[str] = None,
-        max_tokens: int = None,
+        max_completion_tokens: int = None,
         temperature: float = None
     ) -> Dict[str, Any]:
         """
@@ -77,7 +77,7 @@ class OpenAIService:
             
             # Use provided parameter or defaults
             model = model or self.model
-            max_tokens = max_tokens or settings.MAX_OUTPUT_TOKENS
+            max_completion_tokens = max_completion_tokens or settings.MAX_OUTPUT_TOKENS
             temperature = temperature or self.temperature
             
             # Prepare context from retrieved documents
@@ -100,13 +100,17 @@ class OpenAIService:
             # Add current query
             messages.append({"role": "user", "content": user_prompt})
             
+            # DEBUG: Log messages being sent
+            logger.info(f"Sending {len(messages)} messages to OpenAI")
+            logger.info(f"Model: {model}, Max tokens: {max_completion_tokens}")
+            
             # Call OpenAI API
             response = await self.client.chat.completions.create(
-                model=self.model,
+                model=model,
                 messages=messages,
-                max_tokens=max_tokens,
+                max_completion_tokens=max_completion_tokens,
                 temperature=temperature,
-                timeout=settings.OPENAI_TIMEOUT
+                # timeout=settings.OPENAI_TIMEOUT
             )
             
             generated_time = time.time() - start_time
@@ -128,7 +132,15 @@ class OpenAIService:
         
         except Exception as e:
             logger.error(f"Error in generation: {str(e)}")
-            raise
+            logger.error(f"Exception type: {type(e).__name__}")
+            # Return valid response even on error
+            return {
+                "content": f"Xin lỗi, đã xảy ra lỗi trong quá trình tạo phản hồi: {str(e)}",
+                "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+                "model": model or self.model,
+                "finish_reason": "error",
+                "generation_time": 0.0
+            }
     
     async def stream_generate(
         self, 
@@ -152,7 +164,7 @@ class OpenAIService:
             messages = [{"role": "system", "content": self.system_prompt}]
             
             if conversation_history:
-                for msg in conversation_history[:-3]:
+                for msg in conversation_history[-3:]:
                     messages.append({
                         "role": msg.role.value,
                         "content": msg.content
@@ -163,9 +175,9 @@ class OpenAIService:
             stream = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                stream=False,
+                stream=True,
                 temperature=temperature,
-                timeout=settings.OPENAI_TIMEOUT
+                # timeout=settings.OPENAI_TIMEOUT
             )
             
             async for chunk in stream:
@@ -173,8 +185,8 @@ class OpenAIService:
                     yield chunk.choices[0].delta.content
 
         except Exception as e:
-            self.logger.error("Error in streaming generation: %s", e)
-            yield {"error": str(e)}
+            logger.error("Error in streaming generation: %s", e)
+            yield f"Error: {str(e)}"
 
     
     def _format_context(self, docs: List[Dict[str, Any]]) -> str:
@@ -194,7 +206,7 @@ class OpenAIService:
                                 ---"""
             context_parts.append(context_part)
                                         
-            return "\n".join(context_parts)
+        return "\n".join(context_parts)
     
     def _format_chat_prompt(self, query: str, context: str) -> str:
         """Format the chat prompt with query and context"""
@@ -210,7 +222,7 @@ class OpenAIService:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": "Test"}],
-                max_tokens=5,
+                max_completion_tokens=5,
                 timeout=10
             )
             return True

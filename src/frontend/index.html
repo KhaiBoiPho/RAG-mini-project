@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Luật Giao Thông Đường Bộ Việt Nam</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>RAG Chatbot - Luật Giao Thông Việt Nam</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,55 +18,227 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
         }
 
-        .container {
+        .app {
             display: flex;
-            flex-direction: column;
             height: 100vh;
-            max-width: 1200px;
-            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
 
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            padding: 20px;
+        .logo {
+            padding: 25px 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
         }
 
-        .header h1 {
-            font-size: 1.5rem;
+        .logo h1 {
+            font-size: 18px;
+            font-weight: bold;
             margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            color: #333;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
 
         .header p {
-            opacity: 0.9;
-            font-size: 0.9rem;
+            color: #666;
+            font-size: 14px;
         }
 
-        .chat-container {
+        /* Content Area */
+        .content {
             flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Home Page */
+        .home-page {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 50px 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .welcome-banner h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .welcome-banner p {
+            font-size: 18px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Chat Interface */
+        .chat-container {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            height: 100%;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .messages-container {
+        .chat-suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .suggestion-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .suggestion-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .suggestion-card h4 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .suggestion-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            scroll-behavior: smooth;
+            background: rgba(248, 250, 252, 0.5);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 400px;
         }
 
         .message {
@@ -71,16 +246,6 @@
             display: flex;
             align-items: flex-start;
             gap: 12px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: messageSlideIn 0.3s ease-out forwards;
-        }
-
-        @keyframes messageSlideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .message.user {
@@ -94,515 +259,769 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            font-size: 18px;
+            font-weight: bold;
+            font-size: 16px;
         }
 
-        .user .message-avatar {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .message.user .message-avatar {
+            background: #667eea;
             color: white;
         }
 
-        .bot .message-avatar {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
+        .message.bot .message-avatar {
+            background: #e2e8f0;
+            color: #64748b;
         }
 
         .message-content {
             max-width: 70%;
             padding: 15px 20px;
-            border-radius: 20px;
-            position: relative;
-            word-wrap: break-word;
-            line-height: 1.5;
-        }
-
-        .user .message-content {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .bot .message-content {
-            background: #f8f9fa;
-            color: #333;
-            border: 1px solid #e9ecef;
-            border-bottom-left-radius: 5px;
-        }
-
-        .typing-indicator {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 4px;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-radius: 20px;
-            border-bottom-left-radius: 5px;
-        }
-
-        .typing-dots span {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #666;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.4;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-
-        .input-container {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e9ecef;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        }
-
-        .input-form {
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-            max-width: 100%;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
-        #messageInput {
-            width: 100%;
-            min-height: 50px;
-            max-height: 120px;
-            padding: 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 25px;
-            font-size: 16px;
-            resize: none;
-            outline: none;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            line-height: 1.4;
-        }
-
-        #messageInput:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        #sendButton {
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        #sendButton:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        }
-
-        #sendButton:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .suggestions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .suggestion-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            color: #666;
-        }
-
-        .suggestion-btn:hover {
-            background: #f8f9fa;
-            border-color: #3498db;
-            color: #3498db;
-        }
-
-        .welcome-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-
-        .welcome-message h2 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .welcome-message p {
-            margin-bottom: 25px;
+            border-radius: 18px;
             line-height: 1.6;
         }
 
-        .status-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom-left-radius: 8px;
+        }
+
+        .chat-input-container {
             display: flex;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            padding: 15px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            min-width: 60px;
+        }
+
+        .send-button:hover {
+            background: #5a67d8;
+        }
+
+        .send-button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        /* FAQ Page */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            opacity: 0.9;
+            transition: background 0.3s ease;
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #2ecc71;
+        .faq-question:hover {
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
         }
 
-        .error-message {
-            background: #e74c3c !important;
-            color: white !important;
+        .faq-answer {
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+            border-top: 1px solid #e2e8f0;
         }
 
+        .faq-answer.hidden {
+            display: none;
+        }
+
+        /* Feedback Form */
+        .feedback-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .container {
-                height: 100vh;
-                border-radius: 0;
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
             }
-            
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .chat-suggestions {
+                grid-template-columns: 1fr;
+            }
+
             .message-content {
                 max-width: 85%;
             }
-            
-            .header h1 {
-                font-size: 1.2rem;
+
+            .content {
+                padding: 20px 15px;
             }
-            
-            .suggestions {
-                flex-direction: column;
+
+            .welcome-banner h1 {
+                font-size: 28px;
             }
-            
-            .suggestion-btn {
-                text-align: center;
+
+            .features {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>Đang kết nối...</span>
-            </div>
-            <h1>
-                <i class="fas fa-car"></i>
-                Chatbot Luật Giao Thông Đường Bộ Việt Nam
-            </h1>
-            <p>Hỏi đáp về các quy định và luật lệ giao thông đường bộ</p>
-        </div>
+    <div id="root"></div>
 
-        <div class="chat-container">
-            <div class="messages-container" id="messagesContainer">
-                <div class="welcome-message">
-                    <h2><i class="fas fa-robot"></i> Xin chào!</h2>
-                    <p>Tôi là trợ lý AI chuyên về luật giao thông đường bộ Việt Nam. Tôi có thể giúp bạn tìm hiểu về các quy định, mức phạt, thủ tục và các vấn đề liên quan đến giao thông.</p>
-                    <p><strong>Hãy đặt câu hỏi hoặc chọn một gợi ý bên dưới:</strong></p>
-                </div>
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="message-avatar bot">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </div>
+        // API Base URL - thay đổi theo môi trường của bạn
+        const API_BASE_URL = 'http://localhost:8000';
 
-        <div class="input-container">
-            <div class="suggestions">
-                <div class="suggestion-btn" onclick="sendSuggestion('Mức phạt vi phạm giao thông mới nhất 2024')">
-                    <i class="fas fa-gavel"></i> Mức phạt vi phạm giao thông
-                </div>
-                <div class="suggestion-btn" onclick="sendSuggestion('Thủ tục đăng ký xe ô tô lần đầu')">
-                    <i class="fas fa-file-alt"></i> Đăng ký xe ô tô
-                </div>
-                <div class="suggestion-btn" onclick="sendSuggestion('Điều kiện thi bằng lái xe B2')">
-                    <i class="fas fa-id-card"></i> Bằng lái xe B2
-                </div>
-                <div class="suggestion-btn" onclick="sendSuggestion('Quy định về bảo hiểm xe cơ giới')">
-                    <i class="fas fa-shield-alt"></i> Bảo hiểm xe
-                </div>
-            </div>
-            
-            <form class="input-form" onsubmit="sendMessage(event)">
-                <div class="input-wrapper">
-                    <textarea 
-                        id="messageInput" 
-                        placeholder="Nhập câu hỏi về luật giao thông..."
-                        rows="1"
-                        oninput="autoResize(this)"
-                        onkeydown="handleKeyPress(event)"
-                    ></textarea>
-                </div>
-                <button type="submit" id="sendButton">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
-        </div>
-    </div>
+        const App = () => {
+            const [currentPage, setCurrentPage] = useState('home');
+            const [messages, setMessages] = useState([]);
+            const [inputValue, setInputValue] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const messagesEndRef = useRef(null);
 
-    <script>
-        // Configuration
-        const API_BASE_URL = 'http://localhost:8000/api/v1';
-        
-        // DOM Elements
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const statusIndicator = document.querySelector('.status-indicator span');
-        const statusDot = document.querySelector('.status-dot');
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            };
 
-        // State
-        let isTyping = false;
-        let conversationHistory = [];
+            useEffect(() => {
+                scrollToBottom();
+            }, [messages]);
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAPIConnection();
-            messageInput.focus();
-        });
+            const sendMessage = async (message = inputValue) => {
+                if (!message.trim()) return;
 
-        // Check API connection
-        async function checkAPIConnection() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/health`);
-                if (response.ok) {
-                    statusIndicator.textContent = 'Đã kết nối';
-                    statusDot.style.background = '#2ecc71';
-                } else {
-                    throw new Error('API not responding');
+                const userMessage = { type: 'user', content: message };
+                setMessages(prev => [...prev, userMessage]);
+                setInputValue('');
+                setIsLoading(true);
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/v1/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            messages: [{ role: "user", content: message }],
+                            conversation_id: "demo_session",
+                            model: "gpt-4o-mini",
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const botContent = data?.choices?.[0]?.message?.content || 'Xin lỗi, tôi không thể trả lời câu hỏi này lúc này.';
+                    const botMessage = { type: 'bot', content: botContent };
+                    setMessages(prev => [...prev, botMessage]);
+                } catch (error) {
+                    console.error('Error:', error);
+                    const errorMessage = { 
+                        type: 'bot', 
+                        content: 'Xin lỗi, có lỗi xảy ra khi kết nối đến server. Vui lòng thử lại sau.' 
+                    };
+                    setMessages(prev => [...prev, errorMessage]);
+                } finally {
+                    setIsLoading(false);
                 }
-            } catch (error) {
-                statusIndicator.textContent = 'Mất kết nối';
-                statusDot.style.background = '#e74c3c';
-                console.error('API connection error:', error);
-            }
-        }
+            };
 
-        // Auto resize textarea
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        }
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            };
 
-        // Handle key press
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage(event);
-            }
-        }
+            const suggestionQuestions = [
+                {
+                    title: "Mức phạt vi phạm giao thông",
+                    question: "Mức phạt cho các vi phạm giao thông phổ biến là bao nhiêu?",
+                    description: "Tìm hiểu về các mức phạt tiền"
+                },
+                {
+                    title: "Điều kiện cấp bằng lái xe",
+                    question: "Điều kiện để được cấp bằng lái xe ô tô là gì?",
+                    description: "Quy định về việc cấp giấy phép lái xe"
+                },
+                {
+                    title: "Đăng ký phương tiện",
+                    question: "Thủ tục đăng ký xe ô tô mới cần những giấy tờ gì?",
+                    description: "Hướng dẫn đăng ký xe mới"
+                },
+                {
+                    title: "Bảo hiểm bắt buộc",
+                    question: "Quy định về bảo hiểm trách nhiệm dân sự bắt buộc?",
+                    description: "Thông tin về bảo hiểm xe"
+                }
+            ];
 
-        // Send suggestion
-        function sendSuggestion(text) {
-            messageInput.value = text;
-            sendMessage();
-        }
+            const HomePage = () => (
+                <div className="home-page">
+                    <div className="welcome-banner">
+                        <h1>🤖 Chào mừng đến với RAG Chatbot</h1>
+                        <p>Trợ lý thông minh chuyên về Luật Giao thông Đường bộ Việt Nam. 
+                           Hỏi tôi bất kỳ câu hỏi nào về quy định giao thông, phạt nguội, 
+                           bằng lái xe và các thủ tục liên quan!</p>
+                    </div>
+                    
+                    <div className="features">
+                        <div className="feature-card">
+                            <i className="fas fa-brain"></i>
+                            <h3>AI Thông Minh</h3>
+                            <p>Sử dụng công nghệ RAG (Retrieval-Augmented Generation) để cung cấp câu trả lời chính xác từ nguồn dữ liệu luật giao thông Việt Nam.</p>
+                        </div>
+                        <div className="feature-card">
+                            <i className="fas fa-search"></i>
+                            <h3>Tìm Kiếm Nhanh</h3>
+                            <p>Tìm kiếm thông tin luật giao thông một cách nhanh chóng và hiệu quả với hệ thống hybrid retrieval kết hợp BM25 và vector search.</p>
+                        </div>
+                        <div className="feature-card">
+                            <i className="fas fa-shield-alt"></i>
+                            <h3>Thông Tin Chính Xác</h3>
+                            <p>Tất cả thông tin đều được trích xuất từ văn bản luật chính thức, đảm bảo tính chính xác và cập nhật.</p>
+                        </div>
+                        <div className="feature-card">
+                            <i className="fas fa-comments"></i>
+                            <h3>Giao Diện Thân Thiện</h3>
+                            <p>Giao diện chat trực quan, dễ sử dụng với các gợi ý câu hỏi phổ biến để bắt đầu cuộc trò chuyện.</p>
+                        </div>
+                        <div className="feature-card">
+                            <i className="fas fa-lock"></i>
+                            <h3>Bảo Mật Dữ Liệu</h3>
+                            <p>Mọi dữ liệu trao đổi đều được bảo vệ an toàn, đảm bảo quyền riêng tư và bảo mật tuyệt đối cho người dùng.</p>
+                        </div>
+                        <div className="feature-card">
+                            <i className="fas fa-sync-alt"></i>
+                            <h3>Cập Nhật Liên Tục</h3>
+                            <p>Hệ thống được cập nhật thường xuyên với các quy định pháp luật mới nhất, đảm bảo thông tin luôn hợp thời.</p>
+                        </div>
+                    </div>
+                </div>
+            );
 
-        // Send message
-        async function sendMessage(event) {
-            if (event) event.preventDefault();
-            
-            const message = messageInput.value.trim();
-            if (!message || isTyping) return;
+            const ChatPage = () => (
+                <div className="chat-container">
+                    {messages.length === 0 && (
+                        <div className="chat-suggestions">
+                            {suggestionQuestions.map((suggestion, index) => (
+                                <div 
+                                    key={index} 
+                                    className="suggestion-card"
+                                    onClick={() => sendMessage(suggestion.question)}
+                                >
+                                    <h4>{suggestion.title}</h4>
+                                    <p>{suggestion.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <div className="chat-messages">
+                        {messages.map((message, index) => (
+                            <div key={index} className={`message ${message.type}`}>
+                                <div className="message-avatar">
+                                    {message.type === 'user' ? 'U' : '🤖'}
+                                </div>
+                                <div className="message-content">
+                                    {message.content}
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="message bot">
+                                <div className="message-avatar">🤖</div>
+                                <div className="message-content">
+                                    <div className="loading">
+                                        <i className="fas fa-spinner"></i> Đang suy nghĩ...
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+                    
+                    <div className="chat-input-container">
+                        <input
+                            type="text"
+                            className="chat-input"
+                            placeholder="Nhập câu hỏi về luật giao thông..."
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            disabled={isLoading}
+                        />
+                        <button 
+                            className="send-button" 
+                            onClick={() => sendMessage()}
+                            disabled={isLoading || !inputValue.trim()}
+                        >
+                            <i className="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            );
 
-            // Clear input and disable button
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            setLoading(true);
+            const FAQPage = () => {
+                const [openFAQ, setOpenFAQ] = useState(null);
 
-            // Add user message
-            addMessage(message, 'user');
-            
-            // Add to conversation history
-            conversationHistory.push({
-                role: 'user',
-                content: message
-            });
-
-            try {
-                // Show typing indicator
-                showTypingIndicator();
-
-                // Send request to API
-                const response = await fetch(`${API_BASE_URL}/chat`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+                const faqData = [
+                    {
+                        question: "RAG Chatbot này hoạt động như thế nào?",
+                        answer: "RAG (Retrieval-Augmented Generation) Chatbot kết hợp hai công nghệ: tìm kiếm thông tin (Retrieval) và tạo sinh văn bản (Generation). Khi bạn đặt câu hỏi, hệ thống sẽ tìm kiếm thông tin liên quan trong cơ sở dữ liệu luật giao thông, sau đó sử dụng AI để tạo ra câu trả lời tự nhiên và chính xác."
                     },
-                    body: JSON.stringify({
-                        message: message,
-                        conversation_history: conversationHistory.slice(-10) // Keep last 10 messages
-                    })
+                    {
+                        question: "Dữ liệu được lấy từ nguồn nào?",
+                        answer: "Dữ liệu được trích xuất từ văn bản Luật Giao thông Đường bộ Việt Nam chính thức, các nghị định, thông tư hướng dẫn thi hành và các quy định pháp luật liên quan được cập nhật mới nhất."
+                    },
+                    {
+                        question: "Kiến trúc hệ thống như thế nào?",
+                        answer: "Hệ thống sử dụng kiến trúc microservices với FastAPI backend, hybrid retrieval system (BM25 + Vector Search), Cross-encoder reranking, và OpenAI GPT để tạo sinh câu trả lời. Frontend được xây dựng với React để tạo trải nghiệm người dùng tối ưu."
+                    },
+                    {
+                        question: "Tại sao nên sử dụng RAG thay vì chỉ GPT thuần?",
+                        answer: "RAG giúp chatbot cung cấp thông tin chính xác và cập nhật từ nguồn dữ liệu cụ thể, tránh tình trạng 'hallucination' (tạo ra thông tin sai lệch). Điều này đặc biệt quan trọng với thông tin pháp luật cần độ chính xác cao."
+                    },
+                    {
+                        question: "Chatbot có thể trả lời những loại câu hỏi gì?",
+                        answer: "Chatbot có thể trả lời các câu hỏi về: mức phạt vi phạm giao thông, điều kiện cấp bằng lái xe, thủ tục đăng ký phương tiện, quy định bảo hiểm, luật lệ giao thông, và các vấn đề pháp lý liên quan đến giao thông đường bộ."
+                    },
+                    {
+                        question: "Làm thế nào để được kết quả tốt nhất?",
+                        answer: "Để nhận được câu trả lời tốt nhất, hãy đặt câu hỏi cụ thể và rõ ràng. Ví dụ: thay vì hỏi 'phạt giao thông', hãy hỏi 'mức phạt cho việc vượt đèn đỏ đối với ô tô là bao nhiêu?'"
+                    }
+                ];
+
+                return (
+                    <div className="faq-container">
+                        <div style={{textAlign: 'center', marginBottom: '30px'}}>
+                            <h2 style={{color: '#333', marginBottom: '10px'}}>❓ Câu Hỏi Thường Gặp</h2>
+                            <p style={{color: '#666'}}>Tìm hiểu thêm về RAG Chatbot và cách sử dụng hiệu quả</p>
+                        </div>
+                        
+                        {faqData.map((faq, index) => (
+                            <div key={index} className="faq-item">
+                                <div 
+                                    className="faq-question"
+                                    onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                                >
+                                    <span>{faq.question}</span>
+                                    <i className={`fas fa-chevron-${openFAQ === index ? 'up' : 'down'}`}></i>
+                                </div>
+                                <div className={`faq-answer ${openFAQ !== index ? 'hidden' : ''}`}>
+                                    {faq.answer}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                );
+            };
+
+            const FeedbackPage = () => {
+                const [formData, setFormData] = useState({
+                    name: '',
+                    email: '',
+                    type: 'feedback',
+                    message: ''
                 });
+                const [submitted, setSubmitted] = useState(false);
 
-                hideTypingIndicator();
+                const handleSubmit = (e) => {
+                    e.preventDefault();
+                    // Ở đây bạn có thể gửi dữ liệu đến server
+                    console.log('Feedback submitted:', formData);
+                    setSubmitted(true);
+                    setTimeout(() => {
+                        setSubmitted(false);
+                        setFormData({ name: '', email: '', type: 'feedback', message: '' });
+                    }, 3000);
+                };
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `HTTP ${response.status}`);
+                const handleChange = (e) => {
+                    setFormData({
+                        ...formData,
+                        [e.target.name]: e.target.value
+                    });
+                };
+
+                if (submitted) {
+                    return (
+                        <div style={{textAlign: 'center', padding: '50px'}}>
+                            <div style={{
+                                background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                                color: 'white',
+                                padding: '30px',
+                                borderRadius: '15px',
+                                maxWidth: '500px',
+                                margin: '0 auto'
+                            }}>
+                                <i className="fas fa-check-circle" style={{fontSize: '48px', marginBottom: '20px'}}></i>
+                                <h2>Cảm ơn bạn!</h2>
+                                <p>Phản hồi của bạn đã được gửi thành công. Chúng tôi sẽ xem xét và cải thiện hệ thống.</p>
+                            </div>
+                        </div>
+                    );
                 }
 
-                const data = await response.json();
-                
-                // Add bot response
-                addMessage(data.response || 'Xin lỗi, tôi không thể trả lời câu hỏi này.', 'bot');
-                
-                // Add to conversation history
-                conversationHistory.push({
-                    role: 'assistant',
-                    content: data.response
-                });
+                return (
+                    <div>
+                        <div style={{textAlign: 'center', marginBottom: '30px'}}>
+                            <h2 style={{color: '#333', marginBottom: '10px'}}>📝 Phản Hồi & Góp Ý</h2>
+                            <p style={{color: '#666'}}>Chia sẻ ý kiến của bạn để giúp chúng tôi cải thiện chatbot</p>
+                        </div>
+                        
+                        <form className="feedback-form" onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>Họ và tên:</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Nhập họ và tên của bạn"
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Email:</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="example@gmail.com"
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Loại phản hồi:</label>
+                                <select
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleChange}
+                                >
+                                    <option value="feedback">Góp ý cải thiện</option>
+                                    <option value="bug">Báo lỗi</option>
+                                    <option value="feature">Đề xuất tính năng</option>
+                                    <option value="general">Khác</option>
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Nội dung:</label>
+                                <textarea
+                                    name="message"
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Chia sẻ ý kiến, góp ý hoặc báo cáo lỗi của bạn..."
+                                ></textarea>
+                            </div>
+                            
+                            <button type="submit" className="submit-button">
+                                <i className="fas fa-paper-plane" style={{marginRight: '8px'}}></i>
+                                Gửi Phản Hồi
+                            </button>
+                        </form>
+                    </div>
+                );
+            };
 
-                // Update status
-                statusIndicator.textContent = 'Đã kết nối';
-                statusDot.style.background = '#2ecc71';
-
-            } catch (error) {
-                hideTypingIndicator();
-                console.error('Error sending message:', error);
-                
-                let errorMessage = 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.';
-                
-                if (error.message.includes('Failed to fetch')) {
-                    errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.';
-                    statusIndicator.textContent = 'Mất kết nối';
-                    statusDot.style.background = '#e74c3c';
+            const renderPage = () => {
+                switch (currentPage) {
+                    case 'home':
+                        return <HomePage />;
+                    case 'chat':
+                        return <ChatPage />;
+                    case 'faq':
+                        return <FAQPage />;
+                    case 'feedback':
+                        return <FeedbackPage />;
+                    default:
+                        return <HomePage />;
                 }
-                
-                addMessage(errorMessage, 'bot', true);
-            } finally {
-                setLoading(false);
-                messageInput.focus();
-            }
-        }
+            };
 
-        // Add message to chat
-        function addMessage(content, sender, isError = false) {
-            // Remove welcome message if exists
-            const welcomeMessage = document.querySelector('.welcome-message');
-            if (welcomeMessage) {
-                welcomeMessage.remove();
-            }
+            const getPageTitle = () => {
+                switch (currentPage) {
+                    case 'home':
+                        return { title: '🏠 Trang Chủ', subtitle: 'Chào mừng bạn đến với RAG Chatbot' };
+                    case 'chat':
+                        return { title: '💬 Trò Chuyện', subtitle: 'Đặt câu hỏi về luật giao thông Việt Nam' };
+                    case 'faq':
+                        return { title: '❓ FAQ', subtitle: 'Câu hỏi thường gặp về hệ thống' };
+                    case 'feedback':
+                        return { title: '📝 Phản Hồi', subtitle: 'Góp ý và báo lỗi' };
+                    default:
+                        return { title: '🏠 Trang Chủ', subtitle: 'Chào mừng bạn đến với RAG Chatbot' };
+                }
+            };
 
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            return (
+                <div className="app">
+                    {/* Mobile Menu Button */}
+                    <button 
+                        style={{
+                            display: 'none',
+                            position: 'fixed',
+                            top: '20px',
+                            left: '20px',
+                            zIndex: 1001,
+                            background: '#667eea',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '50px',
+                            height: '50px',
+                            fontSize: '18px',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                        }}
+                        className="mobile-menu-btn"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                    >
+                        <i className="fas fa-bars"></i>
+                    </button>
 
-            const avatarDiv = document.createElement('div');
-            avatarDiv.className = 'message-avatar';
-            avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+                    {/* Sidebar */}
+                    <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+                        <div className="logo">
+                            <h1>🤖 RAG Chatbot</h1>
+                            <p>Luật Giao Thông VN</p>
+                        </div>
+                        
+                        <div className="nav-menu">
+                            <div 
+                                className={`nav-item ${currentPage === 'home' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setCurrentPage('home');
+                                    setSidebarOpen(false);
+                                }}
+                            >
+                                <i className="fas fa-home"></i>
+                                <span>Trang Chủ</span>
+                            </div>
+                            
+                            <div 
+                                className={`nav-item ${currentPage === 'chat' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setCurrentPage('chat');
+                                    setSidebarOpen(false);
+                                }}
+                            >
+                                <i className="fas fa-comments"></i>
+                                <span>Trò Chuyện</span>
+                            </div>
+                            
+                            <div 
+                                className={`nav-item ${currentPage === 'faq' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setCurrentPage('faq');
+                                    setSidebarOpen(false);
+                                }}
+                            >
+                                <i className="fas fa-question-circle"></i>
+                                <span>FAQ</span>
+                            </div>
+                            
+                            <div 
+                                className={`nav-item ${currentPage === 'feedback' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setCurrentPage('feedback');
+                                    setSidebarOpen(false);
+                                }}
+                            >
+                                <i className="fas fa-edit"></i>
+                                <span>Phản Hồi</span>
+                            </div>
+                        </div>
+                    </div>
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = `message-content ${isError ? 'error-message' : ''}`;
-            contentDiv.innerHTML = formatMessage(content);
+                    {/* Main Content */}
+                    <div className="main-content">
+                        <div className="header">
+                            <h2>{getPageTitle().title}</h2>
+                            <p>{getPageTitle().subtitle}</p>
+                        </div>
+                        
+                        <div className="content">
+                            {renderPage()}
+                        </div>
+                    </div>
 
-            messageDiv.appendChild(avatarDiv);
-            messageDiv.appendChild(contentDiv);
+                    {/* Mobile Overlay */}
+                    {sidebarOpen && (
+                        <div 
+                            style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                background: 'rgba(0, 0, 0, 0.5)',
+                                zIndex: 999,
+                                display: 'none'
+                            }}
+                            className="mobile-overlay"
+                            onClick={() => setSidebarOpen(false)}
+                        />
+                    )}
+                </div>
+            );
+        };
 
-            messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
-        }
-
-        // Format message content
-        function formatMessage(content) {
-            // Basic markdown-like formatting
-            return content
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n/g, '<br>');
-        }
-
-        // Show typing indicator
-        function showTypingIndicator() {
-            isTyping = true;
-            typingIndicator.style.display = 'flex';
-            scrollToBottom();
-        }
-
-        // Hide typing indicator
-        function hideTypingIndicator() {
-            isTyping = false;
-            typingIndicator.style.display = 'none';
-        }
-
-        // Set loading state
-        function setLoading(loading) {
-            sendButton.disabled = loading;
-            messageInput.disabled = loading;
-            
-            if (loading) {
-                sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            } else {
-                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
-            }
-        }
-
-        // Scroll to bottom
-        function scrollToBottom() {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
-        }
-
-        // Check API connection periodically
-        setInterval(checkAPIConnection, 30000);
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
+
+    <style>
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block !important;
+            }
+            
+            .mobile-overlay {
+                display: block !important;
+            }
+            
+            .header {
+                padding-left: 80px !important;
+            }
+        }
+    </style>
 </body>
 </html>

@@ -50,8 +50,8 @@ async def test_chat_endpoint(mock_pipeline):
         request_payload = ChatRequest(
             conversation_id=None,
             model="gpt-5-nano",
-            temperature=0.7,
-            max_tokens=50,
+            temperature=1,
+            max_completion_tokens=50,
             top_k=3,
             messages=[Message(role=MessageRole.USER, content="Hello")]
         )
@@ -86,8 +86,8 @@ async def test_chat_stream_endpoint(mock_pipeline):
         request_payload = ChatRequest(
             conversation_id=None,
             model="gpt-5-nano",
-            temperature=0.7,
-            max_tokens=50,
+            temperature=1,
+            max_completion_tokens=50,
             top_k=3,
             messages=[Message(role=MessageRole.USER, content="Hello")],
             stream=True

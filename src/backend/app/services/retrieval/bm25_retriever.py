@@ -239,7 +239,8 @@ class BM25Retriever:
             
             # Test with simple query
             test_results = await self.retrieve("test", top_k=1)
-            return True
+            # return True
+            return isinstance(test_results, list) 
             
         except Exception as e:
             logger.error(f"BM25 health check failed: {str(e)}")

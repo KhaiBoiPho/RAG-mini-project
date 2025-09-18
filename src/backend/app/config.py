@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     
     # OpenAI Configuration
     OPENAI_API_KEY: Optional[str] = Field(env="OPENAI_API_KEY")
-    DEFAULT_MODEL: str = Field(default="gpt-5-nano", env="DEFAULT_MODEL")
+    DEFAULT_MODEL: str = Field(default="gpt-4o-mini", env="DEFAULT_MODEL")
     MAX_OUTPUT_TOKENS: int = Field(default=2048, env="MAX_OUTPUT_TOKENS")
     TEMPERATURE_GENERATION: float = Field(env="TEMPERATURE_GENERATION")
     CONVERSATION_HISTORY: Optional[List[Any]] = []
