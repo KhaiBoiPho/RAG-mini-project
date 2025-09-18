@@ -222,10 +222,6 @@ This project is designed for comprehensive evaluation on Vietnamese traffic law 
 5. Push to branch (`git push origin feature/AmazingFeature`)
 6. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - Vietnamese traffic law dataset providers
