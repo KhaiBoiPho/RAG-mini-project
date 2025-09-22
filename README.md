@@ -4,6 +4,10 @@
 
 A production-ready Retrieval-Augmented Generation (RAG) chatbot designed to answer queries about Vietnamese traffic laws. Built entirely from scratch with state-of-the-art information retrieval and natural language generation capabilities.
 
+## Video Demo
+
+[[Video demo my RAG Chatbot !!!](https://www.youtube.com/watch?v=9oUDb0umIoY)]
+
 ## For Recruiters & Technical Leaders
 
 **This project demonstrates enterprise-grade software engineering capabilities:**
@@ -228,10 +232,6 @@ This project is designed for comprehensive evaluation on Vietnamese traffic law 
 - Qdrant team for vector database capabilities
 - OpenAI for language model access
 - LangSmith for observability tools
-
-## Demo
-
-[[Video demo my RAG Chatbot !!!](https://www.youtube.com/watch?v=9oUDb0umIoY)]
 
 ---
 
