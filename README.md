@@ -74,6 +74,12 @@ A production-ready Retrieval-Augmented Generation (RAG) chatbot designed to answ
    - Advanced result reranking capabilities
    - Ready for production integration
 
+<p align="center">
+  <img src="docs-demo/database-qdrant.png" alt="Vector Database Architecture"/>
+  <br/>
+  <em>This is Qdrant database demo</em>
+</p>
+
 ## Quick Start
 
 ### Prerequisites
