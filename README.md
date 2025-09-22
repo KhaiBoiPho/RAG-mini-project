@@ -75,7 +75,7 @@ A production-ready Retrieval-Augmented Generation (RAG) chatbot designed to answ
    - Ready for production integration
 
 <p align="center">
-  <img src="docs-demo/agent-pipeline.png" alt="Vector Database Architecture"/>
+  <img src="docs-demo/agent-pipeline.png" alt="Agent Architecture"/>
   <br/>
   <em>This is Qdrant database demo</em>
 </p>
