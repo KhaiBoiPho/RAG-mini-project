@@ -1,6 +1,10 @@
 # Vietnamese Traffic Law RAG Chatbot
 
-![Chatbot Interface](docs-demo/img1.png)
+<p align="center">
+  <img src="docs-demo/img1.png" alt="Vector Database Architecture"/>
+  <br/>
+  <em>Chatbot Interface</em>
+</p>
 
 A production-ready Retrieval-Augmented Generation (RAG) chatbot designed to answer queries about Vietnamese traffic laws. Built entirely from scratch with state-of-the-art information retrieval and natural language generation capabilities.
 
@@ -93,8 +97,8 @@ A production-ready Retrieval-Augmented Generation (RAG) chatbot designed to answ
 
 1. **Clone the repository**
    ```bash
-   git clone [REPOSITORY_URL]
-   cd RAGFlow-Deploy-Project
+   git clone git@github.com:KhaiBoiPho/rag-flow-deploy-project.git
+   cd rag-flow-deploy-project
    ```
 
 2. **Set up environment variables**
