@@ -10,7 +10,17 @@ A production-ready Retrieval-Augmented Generation (RAG) chatbot designed to answ
 
 ## Vector Database
 
+<p align="center">
+  <img src="docs-demo/database-qdrant.png" alt="Vector Database Architecture"/>
+  <br/>
+  <em>This is Qdrant database demo</em>
+</p>
 
+<p align="center">
+  <img src="docs-demo/info-img.png" alt="Vector Database Info"/>
+  <br/>
+  <em>This is info of one chunk</em>
+</p>
 
 ## For Recruiters & Technical Leaders
 
